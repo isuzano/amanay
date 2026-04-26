@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <menu id="terminal-menu">
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">New Window</attribute>
+        <attribute name="action">win.new-window</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Close Window</attribute>
+        <attribute name="action">win.close-window</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">New Tab</attribute>
+        <attribute name="action">win.new-tab</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Close Tab</attribute>
+        <attribute name="action">win.close-tab</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Rename Tab</attribute>
+        <attribute name="action">win.rename-tab</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Split Pane</attribute>
+        <attribute name="action">win.split-vertical</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Close Pane</attribute>
+        <attribute name="action">win.close-pane</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">Preferences</attribute>
+        <attribute name="action">win.preferences</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Shortcuts</attribute>
+        <attribute name="action">win.shortcuts</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">Copy</attribute>
+        <attribute name="action">win.copy</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Paste</attribute>
+        <attribute name="action">win.paste</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Clear</attribute>
+        <attribute name="action">win.clear</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Reset</attribute>
+        <attribute name="action">win.reset</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">Zoom In</attribute>
+        <attribute name="action">win.zoom-in</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Zoom Out</attribute>
+        <attribute name="action">win.zoom-out</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Zoom Reset</attribute>
+        <attribute name="action">win.zoom-reset</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">About</attribute>
+        <attribute name="action">win.about</attribute>
+      </item>
+    </section>
+  </menu>
+</interface>

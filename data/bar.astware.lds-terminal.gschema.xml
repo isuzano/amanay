@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="bar.astware.lds-terminal" path="/bar/astware/lds-terminal/">
+    <key name="font-name" type="s">
+      <default>'Monospace 10'</default>
+      <summary>Terminal font</summary>
+    </key>
+    <key name="font-color" type="s">
+      <default>'rgba(230,230,230,1.0)'</default>
+      <summary>Terminal font color</summary>
+    </key>
+    <key name="background-color" type="s">
+      <default>'rgba(33,37,41,1.0)'</default>
+      <summary>Terminal background color</summary>
+    </key>
+    <key name="sync-prompt-colors" type="b">
+      <default>true</default>
+      <summary>Sync prompt text with configured font color</summary>
+    </key>
+    <key name="scrollback" type="u">
+      <default>10000</default>
+      <summary>Scrollback lines</summary>
+    </key>
+    <key name="cursor-blink" type="b">
+      <default>true</default>
+      <summary>Cursor blink</summary>
+    </key>
+    <key name="cursor-shape" type="i">
+      <default>1</default>
+      <summary>Cursor shape</summary>
+    </key>
+    <key name="follow-system-theme" type="b">
+      <default>false</default>
+      <summary>Follow system color scheme</summary>
+    </key>
+    <key name="theme-mode" type="i">
+      <default>2</default>
+      <summary>Theme mode: 0=System, 1=Light, 2=Dark</summary>
+    </key>
+    <key name="hide-menu-bar" type="b">
+      <default>false</default>
+      <summary>Hide menu bar</summary>
+    </key>
+    <key name="strict-determinism" type="b">
+      <default>true</default>
+      <summary>Disable animations and transitions for predictable behavior</summary>
+    </key>
+    <key name="confirm-close" type="b">
+      <default>true</default>
+      <summary>Confirm closing with multiple tabs</summary>
+    </key>
+    <key name="confirm-running-process" type="b">
+      <default>true</default>
+      <summary>Confirm before closing tabs/panes/windows with running foreground jobs</summary>
+    </key>
+    <key name="disable-alt" type="b">
+      <default>false</default>
+      <summary>Disable Alt mnemonics</summary>
+    </key>
+    <key name="tab-position" type="i">
+      <default>2</default>
+      <summary>Tab bar position (GtkPositionType)</summary>
+    </key>
+    <key name="window-width" type="i">
+      <default>800</default>
+      <summary>Window width</summary>
+    </key>
+    <key name="window-height" type="i">
+      <default>500</default>
+      <summary>Window height</summary>
+    </key>
+    <key name="window-x" type="i">
+      <default>-1</default>
+      <summary>Window X position</summary>
+    </key>
+    <key name="window-y" type="i">
+      <default>-1</default>
+      <summary>Window Y position</summary>
+    </key>
+    <key name="search-match-case" type="b">
+      <default>false</default>
+      <summary>Match case in search</summary>
+    </key>
+    <key name="search-regex" type="b">
+      <default>false</default>
+      <summary>Use regular expressions in search</summary>
+    </key>
+    <key name="search-whole-word" type="b">
+      <default>false</default>
+      <summary>Match whole words only</summary>
+    </key>
+    <key name="search-wrap" type="b">
+      <default>true</default>
+      <summary>Wrap around search</summary>
+    </key>
+    <key name="search-history" type="as">
+      <default>[]</default>
+      <summary>Recent search terms</summary>
+    </key>
+  </schema>
+</schemalist>

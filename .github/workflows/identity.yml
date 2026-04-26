@@ -1,0 +1,17 @@
+name: Identity Guard
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  identity:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run identity guard
+        run: |
+          chmod +x tools/identity_guard.sh
+          tools/identity_guard.sh

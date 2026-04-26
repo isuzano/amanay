@@ -1,0 +1,32 @@
+option('gtk',
+       type: 'combo',
+       choices: ['4'],
+       value: '4',
+       description: 'Select GTK major version')
+
+option('tests',
+       type: 'boolean',
+       value: true,
+       description: 'Build and register test targets')
+
+option('desktop_install_dir',
+       type: 'string',
+       value: '',
+       description: 'Custom install directory for bar.astware.lds-terminal.desktop (empty = datadir/applications)')
+
+option('strict_build',
+       type: 'boolean',
+       value: true,
+       description: 'Treat compiler warnings as errors (-Werror)')
+
+option('system_check_policy',
+       type: 'combo',
+       choices: ['warn', 'error'],
+       value: 'warn',
+       description: 'How to handle unsupported host systems')
+
+option('default_renderer',
+       type: 'combo',
+       choices: ['auto', 'cairo', 'ngl', 'vulkan'],
+       value: 'cairo',
+       description: 'Default GSK renderer when --renderer is not provided')

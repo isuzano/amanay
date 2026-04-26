@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=Amanay Terminal
+GenericName=Terminal Emulator
+Comment=A disciplined GTK terminal emulator
+Exec=lds-terminal
+Icon=lds-terminal
+StartupWMClass=LdsTerminal
+Terminal=false
+Type=Application
+Categories=System;TerminalEmulator;GTK;
+StartupNotify=true
+Keywords=terminal;shell;console;command;prompt;

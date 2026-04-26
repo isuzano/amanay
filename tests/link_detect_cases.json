@@ -1,0 +1,14 @@
+[
+  {"input": "netkings.com.br", "expect": {"kind": "DOMAIN", "target": "https://netkings.com.br"}},
+  {"input": "sub.domain.io", "expect": {"kind": "DOMAIN", "target": "https://sub.domain.io"}},
+  {"input": "example.com/path?q=1", "expect": {"kind": "DOMAIN", "target": "https://example.com/path?q=1"}},
+  {"input": "https://example.com).", "expect": {"kind": "URL", "target": "https://example.com"}},
+  {"input": "user.name+tag@sub.domain.com", "expect": {"kind": "EMAIL", "target": "mailto:user.name+tag@sub.domain.com"}},
+  {"input": "main.c", "expect": null},
+  {"input": "v1.2.3", "expect": null},
+  {"input": "1.2.3.4", "expect": null},
+  {"input": "image.png", "expect": null},
+  {"input": "(example.com)", "expect": {"kind": "DOMAIN", "target": "https://example.com"}},
+  {"input": "tokenexample.comtoken", "expect": null},
+  {"input": "tokenexample.comtoken/path", "expect": {"kind": "DOMAIN", "target": "https://tokenexample.comtoken/path"}}
+]
