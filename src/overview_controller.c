@@ -124,6 +124,10 @@ void lds_terminal_on_tab_selected_page_changed(GObject *object, GParamSpec *pspe
 		return;
 
 	lds_terminal_on_selected_term_transition(terminal);
+	LdsTerminalTerm *term = lds_terminal_get_current_term(terminal);
+	if (term && term->page)
+		lds_terminal_window_update_title(terminal, adw_tab_page_get_title(term->page));
+	lds_terminal_focus_current_term(terminal);
 	lds_terminal_schedule_focus_current_term(terminal);
 }
 
