@@ -5,8 +5,8 @@
 </p>
 
 <p align="center">
-  <a href="docs/media/amanay.mp4">
-    <img src="docs/media/amanay.gif" alt="Amanay demo" width="100%" />
+  <a href="docs/media/Amanay.mp4">
+    <img src="docs/media/Amanay.gif" alt="Amanay demo" width="100%" />
   </a>
 </p>
 
