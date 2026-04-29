@@ -1,10 +1,35 @@
 # Amanay
 
+<p align="center">
+  A disciplined GTK4 terminal emulator built in C.
+</p>
+
+<p align="center">
+  <a href="docs/media/amanay.mp4">
+    <img src="docs/media/amanay.gif" alt="Amanay demo" width="100%" />
+  </a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/language-C11-blue?style=flat-square" />
+  <img src="https://img.shields.io/badge/stack-GTK4%20%2B%20Libadwaita-green?style=flat-square" />
+  <img src="https://img.shields.io/badge/build-Meson-grey?style=flat-square" />
+  <img src="https://img.shields.io/badge/platform-Unix-lightgrey?style=flat-square" />
+  <img src="https://img.shields.io/badge/license-MIT-yellow?style=flat-square" />
+  <img src="https://img.shields.io/badge/status-active-brightgreen?style=flat-square" />
+  <img src="https://img.shields.io/badge/discipline-ASTEAM-black?style=flat-square" />
+  <img src="https://img.shields.io/badge/interface-CLI-black?style=flat-square" />
+</p>
+
+---
+
 A disciplined GTK4 terminal emulator built in C.
 
 Amanay is part of the Light Desktop Stack (LDS):
 a small, controlled, and maintainable desktop stack built for predictable
-behavior. It is designed for real daily use, not feature accumulation.
+behavior. 
+
+It is designed for **real daily use**, not feature accumulation.
 
 ---
 
@@ -20,7 +45,9 @@ behavior. It is designed for real daily use, not feature accumulation.
 
 ## What it does not do
 
-Amanay is not a GNOME Terminal clone. It is not a feature-heavy terminal.
+Amanay is not a GNOME Terminal clone. 
+It is not a feature-heavy terminal.
+
 Horizontal splits, nested pane trees, themes, plugins, and scripting APIs are
 outside its scope by design.
 
@@ -110,13 +137,14 @@ link detection, and several regression scenarios.
 
 ## Diagnostics
 
-Set `LDS_TERMINAL_DIAG=1` to enable runtime diagnostics output. Useful for
-debugging hangs, shutdown ordering issues, or unexpected behavior under
-sustained use.
+Set `LDS_TERMINAL_DIAG=1` to enable runtime diagnostics output.
 
 ```sh
 LDS_TERMINAL_DIAG=1 lds-terminal
 ```
+
+Useful for debugging hangs, shutdown ordering issues, or unexpected behavior
+under sustained use.
 
 ---
 
@@ -126,8 +154,9 @@ LDS_TERMINAL_DIAG=1 lds-terminal
 - `lds-terminal` is the technical identity: application ID, executable, schema,
   resource prefix, and `WM_CLASS`.
 
-Do not mix them. The `tools/identity_guard.sh` script enforces this and runs
-on every push via CI.
+Do not mix them. 
+
+The `tools/identity_guard.sh` script enforces this and runs on every push via CI.
 
 ---
 
@@ -146,9 +175,6 @@ Full architecture notes: [`docs/DESIGN.md`](docs/DESIGN.md)
 ## Contributing
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md).
-
-The project follows the LDS C Engineering Standard
-([`docs/LDS_C_Engineering_Standard.md`](docs/LDS_C_Engineering_Standard.md)).
 
 Run before submitting:
 
