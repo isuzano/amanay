@@ -85,12 +85,20 @@ static void lds_terminal_setup_tab_surface(LdsTerminal *terminal);
 static void lds_terminal_setup_header_controls(LdsTerminal *terminal, AdwHeaderBar *header);
 static LdsTerminalTerm *lds_terminal_create_initial_tab(LdsTerminal *terminal,
 														 LdsTerminalCommandArgs *args);
+static void lds_terminal_disconnect_signal_data(gpointer instance, gpointer data);
 
 typedef struct {
 	GWeakRef window_ref;
 	guint close_async_token;
 	AdwTabPage *page;
 } LdsTerminalTabCloseConfirmData;
+
+static void lds_terminal_disconnect_signal_data(gpointer instance, gpointer data) {
+	if (!instance || !G_IS_OBJECT(instance))
+		return;
+
+	g_signal_handlers_disconnect_by_data(instance, data);
+}
 
 static void lds_terminal_apply_icon_theme_defaults(void) {
 	GtkSettings *settings = gtk_settings_get_default();
@@ -500,12 +508,12 @@ void lds_terminal_destroy(LdsTerminal *terminal) {
 	}
 
 	if (terminal->window_key_controller && G_IS_OBJECT(terminal->window_key_controller)) {
-		g_signal_handlers_disconnect_by_data(terminal->window_key_controller, terminal);
+		lds_terminal_disconnect_signal_data(terminal->window_key_controller, terminal);
 		terminal->window_key_controller = NULL;
 	}
 
 	if (terminal->search_key_controller && G_IS_OBJECT(terminal->search_key_controller)) {
-		g_signal_handlers_disconnect_by_data(terminal->search_key_controller, terminal);
+		lds_terminal_disconnect_signal_data(terminal->search_key_controller, terminal);
 		terminal->search_key_controller = NULL;
 	}
 
@@ -527,37 +535,37 @@ void lds_terminal_destroy(LdsTerminal *terminal) {
 	terminal->action_focus_next_pane = NULL;
 
 	if (terminal->tab_add_button && GTK_IS_WIDGET(terminal->tab_add_button)) {
-		g_signal_handlers_disconnect_by_data(terminal->tab_add_button, terminal);
+		lds_terminal_disconnect_signal_data(terminal->tab_add_button, terminal);
 		terminal->tab_add_button = NULL;
 	}
 
 	if (terminal->overview_button && GTK_IS_WIDGET(terminal->overview_button)) {
-		g_signal_handlers_disconnect_by_data(terminal->overview_button, terminal);
+		lds_terminal_disconnect_signal_data(terminal->overview_button, terminal);
 		terminal->overview_button = NULL;
 	}
 
 	if (terminal->tab_overview && GTK_IS_WIDGET(terminal->tab_overview))
-		g_signal_handlers_disconnect_by_data(terminal->tab_overview, terminal);
+		lds_terminal_disconnect_signal_data(terminal->tab_overview, terminal);
 
 	if (terminal->overview_label)
 		terminal->overview_label = NULL;
 
 	if (G_IS_OBJECT(adw_style_manager_get_default()))
-		g_signal_handlers_disconnect_by_data(adw_style_manager_get_default(), terminal);
+		lds_terminal_disconnect_signal_data(adw_style_manager_get_default(), terminal);
 
 	{
 		GSettings *settings = lds_terminal_get_settings();
 		if (settings && G_IS_OBJECT(settings))
-			g_signal_handlers_disconnect_by_data(settings, terminal);
+			lds_terminal_disconnect_signal_data(settings, terminal);
 	}
 
 	if (terminal->tab_view && GTK_IS_WIDGET(terminal->tab_view))
-		g_signal_handlers_disconnect_by_data(terminal->tab_view, terminal);
+		lds_terminal_disconnect_signal_data(terminal->tab_view, terminal);
 	if (terminal->tab_bar && GTK_IS_WIDGET(terminal->tab_bar))
-		g_signal_handlers_disconnect_by_data(terminal->tab_bar, terminal);
+		lds_terminal_disconnect_signal_data(terminal->tab_bar, terminal);
 
 	if (terminal->window && GTK_IS_WIDGET(terminal->window))
-		g_signal_handlers_disconnect_by_data(terminal->window, terminal);
+		lds_terminal_disconnect_signal_data(terminal->window, terminal);
 
 	if (terminal->window && GTK_IS_WIDGET(terminal->window))
 		g_object_set_data(G_OBJECT(terminal->window), LDS_TERMINAL_WINDOW_DATA_KEY, NULL);
@@ -567,26 +575,26 @@ void lds_terminal_destroy(LdsTerminal *terminal) {
 		if (display) {
 			GdkClipboard *clipboard = gdk_display_get_clipboard(display);
 			if (clipboard)
-				g_signal_handlers_disconnect_by_data(clipboard, terminal);
+				lds_terminal_disconnect_signal_data(clipboard, terminal);
 		}
 	}
 
 	if (terminal->search_entry && GTK_IS_WIDGET(terminal->search_entry))
-		g_signal_handlers_disconnect_by_data(terminal->search_entry, terminal);
+		lds_terminal_disconnect_signal_data(terminal->search_entry, terminal);
 	if (terminal->search_next && GTK_IS_WIDGET(terminal->search_next))
-		g_signal_handlers_disconnect_by_data(terminal->search_next, terminal);
+		lds_terminal_disconnect_signal_data(terminal->search_next, terminal);
 	if (terminal->search_prev && GTK_IS_WIDGET(terminal->search_prev))
-		g_signal_handlers_disconnect_by_data(terminal->search_prev, terminal);
+		lds_terminal_disconnect_signal_data(terminal->search_prev, terminal);
 	if (terminal->search_match_case && GTK_IS_WIDGET(terminal->search_match_case))
-		g_signal_handlers_disconnect_by_data(terminal->search_match_case, terminal);
+		lds_terminal_disconnect_signal_data(terminal->search_match_case, terminal);
 	if (terminal->search_regex && GTK_IS_WIDGET(terminal->search_regex))
-		g_signal_handlers_disconnect_by_data(terminal->search_regex, terminal);
+		lds_terminal_disconnect_signal_data(terminal->search_regex, terminal);
 	if (terminal->search_whole_word && GTK_IS_WIDGET(terminal->search_whole_word))
-		g_signal_handlers_disconnect_by_data(terminal->search_whole_word, terminal);
+		lds_terminal_disconnect_signal_data(terminal->search_whole_word, terminal);
 	if (terminal->search_wrap && GTK_IS_WIDGET(terminal->search_wrap))
-		g_signal_handlers_disconnect_by_data(terminal->search_wrap, terminal);
+		lds_terminal_disconnect_signal_data(terminal->search_wrap, terminal);
 	if (terminal->search_popover && GTK_IS_WIDGET(terminal->search_popover))
-		g_signal_handlers_disconnect_by_data(terminal->search_popover, terminal);
+		lds_terminal_disconnect_signal_data(terminal->search_popover, terminal);
 
 	if (terminal->search_popover && GTK_IS_WIDGET(terminal->search_popover)) {
 		terminal->search_popover = NULL;
