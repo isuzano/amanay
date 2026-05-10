@@ -31,13 +31,10 @@ static const char k_link_re_url_scheme[] = "(news|telnet|nttp|file|http|ftp|http
 										   "(/[[:graph:]]*)?";
 
 static const char k_link_re_email[] =
-	"[[:alnum:]_.%+-]+@([[:alnum:]-]+\\.)+(com|org|net|io|dev|app|tech|ai|co|me|info|biz|xyz|"
-	"site|online|cloud|store|blog|br|us|uk|de|fr|es|it|pt|nl|ru|jp|kr|cn|ca|au|ch|se|no|fi|dk|"
-	"be|pl)(\\b)";
+	"[[:alnum:]_.%+-]+@([[:alnum:]-]+\\.)+[[:alpha:]][[:alnum:]-]{1,62}(\\b)";
 
 static const char k_link_re_domain[] =
-	"([[:alnum:]][[:alnum:]-]*\\.)+(com|org|net|io|dev|app|tech|ai|co|me|info|biz|xyz|site|online|"
-	"cloud|store|blog|br|us|uk|de|fr|es|it|pt|nl|ru|jp|kr|cn|ca|au|ch|se|no|fi|dk|be|pl)"
+	"([[:alnum:]][[:alnum:]-]*\\.)+[[:alpha:]][[:alnum:]-]{1,62}"
 	"(:[[:digit:]]+)?"
 	"([/?#][[:graph:]]*)?";
 
