@@ -488,7 +488,7 @@ static gchar *lds_terminal_get_link_target_at(VteTerminal *vte, LdsTerminalTerm 
 }
 
 static gchar *lds_terminal_get_link_target_at_line_pos(VteTerminal *vte, LdsTerminalTerm *term,
-													   double x, double y) {
+														   double x, double y) {
 	if (!vte || !term || !term->link_cache)
 		return NULL;
 
@@ -504,6 +504,7 @@ static gchar *lds_terminal_get_link_target_at_line_pos(VteTerminal *vte, LdsTerm
 	if (col < 0 || row_in_view < 0 || col >= (gint)cols || row_in_view >= (gint)rows)
 		return NULL;
 
+	g_autofree gchar *osc8_uri = lds_terminal_vte_terminal_hyperlink_check_at(vte, x, y);
 	gint top_row = lds_terminal_vte_top_row_guess(vte, char_h);
 	gint row_candidates[2] = {top_row + row_in_view, row_in_view};
 	for (guint ri = 0; ri < G_N_ELEMENTS(row_candidates); ri++) {
@@ -521,7 +522,6 @@ static gchar *lds_terminal_get_link_target_at_line_pos(VteTerminal *vte, LdsTerm
 			continue;
 
 		const GPtrArray *spans = NULL;
-		g_autofree gchar *osc8_uri = lds_terminal_vte_terminal_hyperlink_check_at(vte, x, y);
 		if (osc8_uri && *osc8_uri) {
 			LdsOsc8Span osc8_span = {
 				.start_col = (guint)col,
@@ -536,7 +536,7 @@ static gchar *lds_terminal_get_link_target_at_line_pos(VteTerminal *vte, LdsTerm
 			(void)recomputed;
 		}
 		if (!spans || spans->len == 0) {
-			if (osc8_uri)
+			if (osc8_uri && spans)
 				g_ptr_array_unref((GPtrArray *)spans);
 			continue;
 		}
@@ -547,13 +547,13 @@ static gchar *lds_terminal_get_link_target_at_line_pos(VteTerminal *vte, LdsTerm
 				continue;
 			if (col >= (gint)span->start_col && col < (gint)span->end_col) {
 				gchar *target = g_strdup(span->target);
-				if (osc8_uri)
+				if (osc8_uri && spans)
 					g_ptr_array_unref((GPtrArray *)spans);
 				return target;
 			}
 		}
 
-		if (osc8_uri)
+		if (osc8_uri && spans)
 			g_ptr_array_unref((GPtrArray *)spans);
 	}
 
