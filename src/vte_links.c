@@ -426,9 +426,31 @@ static void lds_terminal_vte_launch_uri(const gchar *uri) {
 	if (!uri || !*uri)
 		return;
 
+	g_autofree gchar *sanitized = lds_terminal_url_sanitize_match(uri);
+	if (!sanitized) {
+		g_warning("Refusing to open unsafe URI");
+		return;
+	}
+
+	const gchar *scheme = g_uri_peek_scheme(sanitized);
+	if (!scheme || !lds_terminal_url_is_allowed_scheme(scheme)) {
+		g_warning("Refusing to open URI with unsupported scheme");
+		return;
+	}
+
+	g_autoptr(GError) parse_error = NULL;
+	GUri *parsed = g_uri_parse(sanitized, G_URI_FLAGS_NONE, &parse_error);
+	if (!parsed) {
+		g_warning("Refusing to open invalid URI: %s",
+				  parse_error ? parse_error->message : "unknown error");
+		return;
+	}
+	g_uri_unref(parsed);
+
 	g_autoptr(GError) error = NULL;
-	if (!g_app_info_launch_default_for_uri(uri, NULL, &error)) {
-		g_warning("Failed to open URI '%s': %s", uri, error ? error->message : "unknown error");
+	if (!g_app_info_launch_default_for_uri(sanitized, NULL, &error)) {
+		g_warning("Failed to open URI '%s': %s", sanitized,
+				  error ? error->message : "unknown error");
 	}
 }
 

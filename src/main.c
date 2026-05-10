@@ -32,8 +32,7 @@ static void lds_terminal_register_resources(LdsTerminalState *state);
 static void lds_terminal_on_startup(GApplication *app, gpointer user_data);
 static void lds_terminal_install_log_filters(void);
 static GLogWriterOutput lds_terminal_log_writer_filter(GLogLevelFlags log_level,
-													   const GLogField *fields, gsize n_fields,
-													   gpointer user_data);
+	const GLogField *fields, gsize n_fields, gpointer user_data);
 static void lds_terminal_command_args_clear(LdsTerminalCommandArgs *args);
 static int lds_terminal_fail(int code, const char *fmt, ...) G_GNUC_WARN_UNUSED_RESULT;
 static int lds_terminal_main_teardown(LdsTerminalRuntime *runtime, int status);
@@ -139,8 +138,7 @@ static void lds_terminal_install_log_filters(void) {
 }
 
 static GLogWriterOutput lds_terminal_log_writer_filter(GLogLevelFlags log_level,
-													   const GLogField *fields, gsize n_fields,
-													   gpointer user_data) {
+	const GLogField *fields, gsize n_fields, gpointer user_data) {
 	(void)user_data;
 
 	if ((log_level & G_LOG_LEVEL_WARNING) != 0 && fields) {
