@@ -56,6 +56,7 @@ static void lds_terminal_search_store_history(GSettings *settings, const char *t
 }
 
 void lds_terminal_search_dialog_init(LdsTerminal *terminal) {
+	LdsTerminalSearchState *search_state;
 	GtkWidget *button;
 	GtkWidget *popover;
 	GtkWidget *content;
@@ -73,6 +74,10 @@ void lds_terminal_search_dialog_init(LdsTerminal *terminal) {
 	GSettings *settings;
 
 	if (!terminal)
+		return;
+
+	search_state = lds_terminal_search_state_ensure(terminal);
+	if (!search_state)
 		return;
 
 	button = gtk_menu_button_new();
@@ -195,13 +200,18 @@ void lds_terminal_search_dialog_show(LdsTerminal *terminal) {
 }
 
 void lds_terminal_search_update_regex(LdsTerminal *terminal) {
-	LdsTerminalTerm *term = lds_terminal_get_current_term(terminal);
+	LdsTerminalSearchState *search_state;
+	LdsTerminalTerm *term;
 	const gchar *text;
 	GRegex *count_regex = NULL;
 	VteRegex *vte_regex;
 	guint32 flags = 0;
 
-	if (!terminal || !term || !terminal->search_entry)
+	if (!terminal || !terminal->search_entry)
+		return;
+	search_state = terminal->search_state;
+	term = lds_terminal_get_current_term(terminal);
+	if (!term || !search_state)
 		return;
 
 	text = gtk_editable_get_text(GTK_EDITABLE(terminal->search_entry));
@@ -230,21 +240,21 @@ void lds_terminal_search_update_regex(LdsTerminal *terminal) {
 	lds_terminal_search_read_options(terminal, &match_case, &use_regex, &whole_word, &wrap,
 									 &opt_flags);
 
-	gboolean same_query_and_flags = terminal->search_last_text &&
-									g_strcmp0(terminal->search_last_text, text) == 0 &&
-									terminal->search_last_flags == opt_flags;
+	gboolean same_query_and_flags = search_state->search_last_text &&
+									g_strcmp0(search_state->search_last_text, text) == 0 &&
+									search_state->search_last_flags == opt_flags;
 	if (same_query_and_flags) {
-		if (terminal->search_total_cache_valid)
+		if (search_state->search_total_cache_valid)
 			return;
 
-		if (!terminal->search_last_valid_regex) {
+		if (!search_state->search_last_valid_regex) {
 			lds_terminal_search_cancel_count_job(terminal, TRUE);
 			lds_terminal_search_update_count_label(terminal->search_count_label, FALSE, 0, FALSE,
 												   FALSE);
 			return;
 		}
 
-		if (terminal->search_count_running &&
+		if (search_state->search_count_running &&
 			lds_terminal_search_count_request_is_duplicate(terminal, term, text, opt_flags)) {
 			lds_terminal_search_update_count_label(terminal->search_count_label, TRUE, 0, FALSE,
 												   TRUE);
@@ -256,12 +266,12 @@ void lds_terminal_search_update_regex(LdsTerminal *terminal) {
 		return;
 	}
 
-	g_free(terminal->search_last_text);
-	terminal->search_last_text = g_strdup(text);
-	terminal->search_last_flags = opt_flags;
-	terminal->search_total_cache_valid = FALSE;
-	terminal->search_last_approximate = FALSE;
-	terminal->search_last_valid_regex = TRUE;
+	g_free(search_state->search_last_text);
+	search_state->search_last_text = g_strdup(text);
+	search_state->search_last_flags = opt_flags;
+	search_state->search_total_cache_valid = FALSE;
+	search_state->search_last_approximate = FALSE;
+	search_state->search_last_valid_regex = TRUE;
 
 	if (!match_case)
 		flags |= PCRE2_CASELESS;
@@ -282,10 +292,10 @@ void lds_terminal_search_update_regex(LdsTerminal *terminal) {
 			gtk_widget_set_sensitive(terminal->search_next, FALSE);
 		if (terminal->search_prev)
 			gtk_widget_set_sensitive(terminal->search_prev, FALSE);
-		terminal->search_last_total_matches = 0;
-		terminal->search_last_valid_regex = FALSE;
-		terminal->search_last_approximate = FALSE;
-		terminal->search_total_cache_valid = TRUE;
+		search_state->search_last_total_matches = 0;
+		search_state->search_last_valid_regex = FALSE;
+		search_state->search_last_approximate = FALSE;
+		search_state->search_total_cache_valid = TRUE;
 		lds_terminal_search_update_count_label(terminal->search_count_label, FALSE, 0, FALSE,
 											   FALSE);
 		return;
@@ -305,10 +315,10 @@ void lds_terminal_search_update_regex(LdsTerminal *terminal) {
 													   whole_word, opt_flags, &valid_regex);
 	if (!valid_regex || !count_regex) {
 		lds_terminal_search_cancel_count_job(terminal, TRUE);
-		terminal->search_last_total_matches = 0;
-		terminal->search_last_valid_regex = FALSE;
-		terminal->search_last_approximate = FALSE;
-		terminal->search_total_cache_valid = TRUE;
+		search_state->search_last_total_matches = 0;
+		search_state->search_last_valid_regex = FALSE;
+		search_state->search_last_approximate = FALSE;
+		search_state->search_total_cache_valid = TRUE;
 		lds_terminal_search_update_count_label(terminal->search_count_label, FALSE, 0, FALSE,
 											   FALSE);
 		return;
@@ -324,8 +334,12 @@ gboolean lds_terminal_search_apply(LdsTerminal *terminal, gboolean forward) {
 	GSettings *settings;
 	const char *text;
 	gboolean found = FALSE;
+	LdsTerminalSearchState *search_state;
 
 	if (!terminal || !term || !terminal->search_entry)
+		return FALSE;
+	search_state = terminal->search_state;
+	if (!search_state)
 		return FALSE;
 
 	settings = lds_terminal_settings_backend();
@@ -341,9 +355,9 @@ gboolean lds_terminal_search_apply(LdsTerminal *terminal, gboolean forward) {
 		found = lds_terminal_vte_terminal_search_find_previous(VTE_TERMINAL(term->vte));
 
 	lds_terminal_search_update_count_label(
-		terminal->search_count_label, terminal->search_last_valid_regex,
-		terminal->search_last_total_matches, terminal->search_last_approximate,
-		!terminal->search_total_cache_valid);
+		terminal->search_count_label, search_state->search_last_valid_regex,
+		search_state->search_last_total_matches, search_state->search_last_approximate,
+		!search_state->search_total_cache_valid);
 
 	return found;
 }
@@ -441,9 +455,9 @@ static void lds_terminal_on_search_toggle(GtkToggleButton *button, LdsTerminal *
 	if (!terminal)
 		return;
 
-	if (terminal->search_debounce_id) {
-		g_source_remove(terminal->search_debounce_id);
-		terminal->search_debounce_id = 0;
+	if (terminal->search_state && terminal->search_state->search_debounce_id) {
+		g_source_remove(terminal->search_state->search_debounce_id);
+		terminal->search_state->search_debounce_id = 0;
 	}
 
 	lds_terminal_search_update_regex(terminal);
@@ -451,10 +465,12 @@ static void lds_terminal_on_search_toggle(GtkToggleButton *button, LdsTerminal *
 
 gboolean lds_terminal_search_debounce_cb(gpointer data) {
 	LdsTerminal *terminal = data;
+	LdsTerminalSearchState *search_state = terminal ? terminal->search_state : NULL;
 	if (!terminal)
 		return G_SOURCE_REMOVE;
 
-	terminal->search_debounce_id = 0;
+	if (search_state)
+		search_state->search_debounce_id = 0;
 	lds_terminal_search_update_regex(terminal);
 	return G_SOURCE_REMOVE;
 }

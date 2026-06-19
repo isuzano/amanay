@@ -14,6 +14,7 @@
 #include <gtk/gtk.h>
 #include "lds_terminal.h"
 #include "internal/link_cache.h"
+#include "internal/search_state.h"
 
 #define LDS_TERMINAL_DISPLAY_NAME "Amanay"
 
@@ -44,6 +45,7 @@ struct _LdsTerminal {
 	GtkWidget *search_next;
 	GtkWidget *search_prev;
 	GtkWidget *search_count_label;
+	LdsTerminalSearchState *search_state;
 	GtkEventController *window_key_controller;
 	GtkEventController *search_key_controller;
 	GSimpleActionGroup *window_actions;
@@ -65,42 +67,6 @@ struct _LdsTerminal {
 	struct _LdsTerminalTerm *menu_paste_cache_term;
 	gboolean menu_paste_cache_valid;
 	gboolean menu_paste_enabled_cache;
-	guint search_debounce_id;
-	GSourceFunc search_debounce_callback;
-	guint search_debounce_delay_ms;
-	gchar *search_last_text;
-	guint search_last_flags;
-	guint search_last_total_matches;
-	gboolean search_last_valid_regex;
-	gboolean search_last_approximate;
-	gboolean search_total_cache_valid;
-	GBytes *search_haystack_bytes;
-	struct _LdsTerminalTerm *search_haystack_term;
-	guint search_haystack_generation;
-	guint search_haystack_snapshot_generation;
-	gint64 search_snapshot_last_attempt_us;
-	gboolean search_snapshot_throttled;
-	GRegex *search_count_regex;
-	gchar *search_count_regex_text;
-	guint search_count_regex_flags;
-	gboolean search_count_regex_valid;
-	guint search_count_request_serial;
-	GThread *search_count_thread;
-	GCancellable *search_count_cancellable;
-	gint search_count_result_idle_id;
-	gboolean search_count_running;
-	gboolean search_count_reschedule;
-	struct _LdsTerminalTerm *search_count_active_term;
-	gchar *search_count_active_query;
-	guint search_count_active_opt_flags;
-	guint search_count_active_generation;
-	struct _LdsTerminalTerm *search_pending_term;
-	gchar *search_pending_query;
-	gboolean search_pending_match_case;
-	gboolean search_pending_use_regex;
-	gboolean search_pending_whole_word;
-	guint search_pending_opt_flags;
-	guint search_pending_generation;
 	struct _LdsTerminalTerm *current_selected_term;
 	guint64 current_term_lookup_calls;
 	guint64 current_term_lookup_fast_hits;
@@ -154,6 +120,16 @@ struct _LdsTerminalTerm {
 	gboolean spawn_failed;
 	gchar *custom_tab_title;
 };
+
+static inline LdsTerminalSearchState *lds_terminal_search_state_ensure(LdsTerminal *terminal) {
+	if (!terminal)
+		return NULL;
+
+	if (!terminal->search_state)
+		terminal->search_state = lds_terminal_search_state_new();
+
+	return terminal->search_state;
+}
 
 #define LDS_TERMINAL_WINDOW_DATA_KEY "lds-terminal-instance"
 

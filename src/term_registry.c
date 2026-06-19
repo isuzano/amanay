@@ -68,8 +68,8 @@ void lds_terminal_drop_term_from_owner(LdsTerminal *owner, LdsTerminalTerm *term
 		owner->menu_paste_cache_term = NULL;
 		owner->menu_paste_cache_valid = FALSE;
 	}
-	if (owner->search_haystack_term == term)
-		owner->search_haystack_term = NULL;
+	if (owner->search_state && owner->search_state->search_haystack_term == term)
+		owner->search_state->search_haystack_term = NULL;
 
 	for (guint i = 0; i < owner->terms->len; i++) {
 		if (g_ptr_array_index(owner->terms, i) == term) {
@@ -131,8 +131,8 @@ void lds_terminal_remove_term(LdsTerminal *terminal, LdsTerminalTerm *term) {
 		terminal->menu_paste_cache_term = NULL;
 		terminal->menu_paste_cache_valid = FALSE;
 	}
-	if (terminal->search_haystack_term == term)
-		terminal->search_haystack_term = NULL;
+	if (terminal->search_state && terminal->search_state->search_haystack_term == term)
+		terminal->search_state->search_haystack_term = NULL;
 
 	g_ptr_array_remove_index(terminal->terms, index);
 

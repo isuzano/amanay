@@ -177,6 +177,10 @@ void lds_terminal_search_schedule_debounce(LdsTerminal *terminal, GSourceFunc ca
 	if (!terminal || !callback)
 		return;
 
+	LdsTerminalSearchState *search_state = lds_terminal_search_state_ensure(terminal);
+	if (!search_state)
+		return;
+
 	gboolean regex_enabled = FALSE;
 	if (terminal->search_regex)
 		regex_enabled = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(terminal->search_regex));
@@ -185,19 +189,19 @@ void lds_terminal_search_schedule_debounce(LdsTerminal *terminal, GSourceFunc ca
 		lds_terminal_search_compute_debounce_ms(regex_enabled, lds_terminal_settings_scrollback());
 	debounce_ms = (guint)MAX(debounce_ms, 1u);
 
-	if (terminal->search_debounce_id && terminal->search_debounce_callback == callback &&
-		terminal->search_debounce_delay_ms == debounce_ms) {
+	if (search_state->search_debounce_id && search_state->search_debounce_callback == callback &&
+		search_state->search_debounce_delay_ms == debounce_ms) {
 		return;
 	}
 
-	if (terminal->search_debounce_id) {
-		g_source_remove(terminal->search_debounce_id);
-		terminal->search_debounce_id = 0;
+	if (search_state->search_debounce_id) {
+		g_source_remove(search_state->search_debounce_id);
+		search_state->search_debounce_id = 0;
 	}
 
-	terminal->search_debounce_id = g_timeout_add(debounce_ms, callback, terminal);
-	terminal->search_debounce_callback = callback;
-	terminal->search_debounce_delay_ms = debounce_ms;
+	search_state->search_debounce_id = g_timeout_add(debounce_ms, callback, terminal);
+	search_state->search_debounce_callback = callback;
+	search_state->search_debounce_delay_ms = debounce_ms;
 }
 
 gboolean lds_terminal_validate_initial_term(LdsTerminal *terminal, LdsTerminalTerm *term) {
@@ -212,11 +216,12 @@ gboolean lds_terminal_validate_initial_term(LdsTerminal *terminal, LdsTerminalTe
 }
 
 void lds_terminal_cancel_search_debounce(LdsTerminal *terminal) {
-	if (!terminal || terminal->search_debounce_id == 0)
+	LdsTerminalSearchState *search_state = terminal ? terminal->search_state : NULL;
+	if (!search_state || search_state->search_debounce_id == 0)
 		return;
 
-	g_source_remove(terminal->search_debounce_id);
-	terminal->search_debounce_id = 0;
-	terminal->search_debounce_callback = NULL;
-	terminal->search_debounce_delay_ms = 0;
+	g_source_remove(search_state->search_debounce_id);
+	search_state->search_debounce_id = 0;
+	search_state->search_debounce_callback = NULL;
+	search_state->search_debounce_delay_ms = 0;
 }

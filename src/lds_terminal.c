@@ -420,10 +420,13 @@ static LdsTerminal *lds_terminal_create_internal(LdsTerminalState *parent,
 	terminal->parent = parent;
 	terminal->terms = g_ptr_array_new_with_free_func((GDestroyNotify)lds_terminal_vte_free_term);
 	terminal->scale = 1.0;
-	terminal->search_last_valid_regex = TRUE;
-	terminal->search_haystack_generation = 1;
-	terminal->search_count_regex_valid = TRUE;
-	terminal->search_pending_match_case = TRUE;
+	terminal->search_state = lds_terminal_search_state_new();
+	if (terminal->search_state) {
+		terminal->search_state->search_last_valid_regex = TRUE;
+		terminal->search_state->search_haystack_generation = 1;
+		terminal->search_state->search_count_regex_valid = TRUE;
+		terminal->search_state->search_pending_match_case = TRUE;
+	}
 	terminal->current_tab_position = -1;
 	terminal->startup_geometry_bitmask = args ? args->geometry_bitmask : 0;
 	terminal->startup_geometry_columns = args ? args->geometry_columns : 0;
@@ -502,10 +505,8 @@ void lds_terminal_destroy(LdsTerminal *terminal) {
 	}
 
 	lds_terminal_search_reset_cache(terminal);
-	if (terminal->search_debounce_id) {
-		g_source_remove(terminal->search_debounce_id);
-		terminal->search_debounce_id = 0;
-	}
+	lds_terminal_cancel_search_debounce(terminal);
+	g_clear_pointer(&terminal->search_state, lds_terminal_search_state_free);
 
 	if (terminal->window_key_controller && G_IS_OBJECT(terminal->window_key_controller)) {
 		lds_terminal_disconnect_signal_data(terminal->window_key_controller, terminal);
@@ -869,22 +870,27 @@ static void lds_terminal_on_global_settings_changed(GSettings *settings, gchar *
 gboolean lds_terminal_search_count_request_is_duplicate(LdsTerminal *terminal,
 														LdsTerminalTerm *term, const char *query,
 														guint opt_flags) {
+	LdsTerminalSearchState *search_state = terminal ? terminal->search_state : NULL;
+
 	if (!terminal || !term || !query || *query == '\0')
 		return FALSE;
-
-	if (!terminal->search_count_running)
+	if (!search_state)
 		return FALSE;
 
-	if (terminal->search_count_reschedule && terminal->search_pending_query &&
-		terminal->search_pending_term == term && terminal->search_pending_opt_flags == opt_flags &&
-		terminal->search_pending_generation == terminal->search_haystack_generation &&
-		g_strcmp0(terminal->search_pending_query, query) == 0)
+	if (!search_state->search_count_running)
+		return FALSE;
+
+	if (search_state->search_count_reschedule && search_state->search_pending_query &&
+		search_state->search_pending_term == term &&
+		search_state->search_pending_opt_flags == opt_flags &&
+		search_state->search_pending_generation == search_state->search_haystack_generation &&
+		g_strcmp0(search_state->search_pending_query, query) == 0)
 		return TRUE;
 
-	if (terminal->search_count_active_query && terminal->search_count_active_term == term &&
-		terminal->search_count_active_opt_flags == opt_flags &&
-		terminal->search_count_active_generation == terminal->search_haystack_generation &&
-		g_strcmp0(terminal->search_count_active_query, query) == 0)
+	if (search_state->search_count_active_query && search_state->search_count_active_term == term &&
+		search_state->search_count_active_opt_flags == opt_flags &&
+		search_state->search_count_active_generation == search_state->search_haystack_generation &&
+		g_strcmp0(search_state->search_count_active_query, query) == 0)
 		return TRUE;
 
 	return FALSE;
