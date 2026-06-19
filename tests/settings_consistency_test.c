@@ -9,6 +9,7 @@
 #include <gio/gio.h>
 
 #include "settings.h"
+#include "internal/shortcuts_registry.h"
 
 static void test_scrollback_is_clamped_to_bounds(void) {
 	lds_terminal_settings_reset_defaults();
@@ -74,6 +75,26 @@ static void test_confirm_running_process_roundtrip(void) {
 	g_assert_true(lds_terminal_settings_confirm_running_process_enabled());
 }
 
+static void test_paste_and_new_tab_shortcuts_do_not_conflict(void) {
+	const LdsTerminalShortcutBinding *new_tab =
+		lds_terminal_shortcuts_find_by_action("win.new-tab");
+	const LdsTerminalShortcutBinding *paste = lds_terminal_shortcuts_find_by_action("win.paste");
+	g_autofree gchar *new_tab_norm = NULL;
+	g_autofree gchar *paste_norm = NULL;
+
+	g_assert_nonnull(new_tab);
+	g_assert_nonnull(paste);
+	new_tab_norm = lds_terminal_shortcuts_normalize_accel(new_tab->getter());
+	paste_norm = lds_terminal_shortcuts_normalize_accel(paste->getter());
+
+	g_assert_cmpstr(new_tab->getter(), ==, "<Ctrl><Shift>T");
+	g_assert_cmpstr(paste->getter(), ==, "<Ctrl><Shift>V");
+	g_assert_cmpstr(new_tab->getter(), !=, paste->getter());
+	g_assert_cmpstr(new_tab_norm, !=, paste_norm);
+	g_assert_false(lds_terminal_shortcuts_has_conflict(new_tab, new_tab->getter(), NULL));
+	g_assert_false(lds_terminal_shortcuts_has_conflict(paste, paste->getter(), NULL));
+}
+
 int main(int argc, char **argv) {
 	g_test_init(&argc, &argv, NULL);
 
@@ -88,6 +109,8 @@ int main(int argc, char **argv) {
 	g_test_add_func("/settings/sync-prompt-colors/roundtrip", test_sync_prompt_colors_roundtrip);
 	g_test_add_func("/settings/confirm-running-process/roundtrip",
 					test_confirm_running_process_roundtrip);
+	g_test_add_func("/settings/shortcuts/paste-and-new-tab-do-not-conflict",
+					test_paste_and_new_tab_shortcuts_do_not_conflict);
 
 	return g_test_run();
 }
