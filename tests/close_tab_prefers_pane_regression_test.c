@@ -93,6 +93,7 @@ static void test_close_tab_closes_split_tab(void) {
 	g_ptr_array_add(terminal.terms, term);
 
 	lds_terminal_close_current_tab(&terminal);
+	drain_main_loop();
 
 	g_assert_true(term->closing);
 	g_assert_cmpuint(terminal.terms->len, ==, 0u);
