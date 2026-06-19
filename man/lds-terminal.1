@@ -1,0 +1,64 @@
+.TH LDS-TERMINAL 1 "2026-06-19" "lds-terminal 0.1.0" "User Commands"
+.SH NAME
+lds-terminal \- disciplined GTK4 terminal emulator
+.SH SYNOPSIS
+.B lds-terminal
+[options] [command [args...]]
+.SH DESCRIPTION
+lds-terminal is the command-line entry point for Amanay, the Light Desktop
+Stack terminal emulator built with GTK4, Libadwaita, and VTE.
+
+It opens a terminal window with tab and split support, link detection, search,
+and runtime diagnostics.
+.SH OPTIONS
+.TP
+.BR -w ", " --working-directory " " DIR
+Set the working directory for the initial tab.
+.TP
+.BR -t ", " --title " " TITLE
+Set the initial window title.
+.TP
+.BR -g ", " --geometry " " GEOMETRY
+Set initial geometry in the form \fBCOLSxROWS+X+Y\fP.
+.TP
+.BR -e ", " --command " " COMMAND
+Execute COMMAND through the shell parser.
+.TP
+.BR --tabs " " TABS
+Set the tabs specification string.
+.TP
+.BR -p ", " --profile " " PROFILE
+Select a profile name.
+.TP
+.BR -l ", " --login
+Run the command as a login shell.
+.TP
+.BR --no-remote
+Disable remote control.
+.TP
+.BR --compat-local-services
+Force local VFS and disable desktop portals.
+.TP
+.BR --truecolor
+Force COLORTERM=truecolor and TERM=xterm-256color.
+.TP
+.BR --no-truecolor
+Disable TrueColor environment injection.
+.TP
+.BR --renderer " " MODE
+Select the GSK renderer: auto, cairo, ngl, or vulkan.
+.SH ARGUMENTS
+If \fB--command\fP is not used, remaining positional arguments are treated as
+the command to execute.
+
+\fB--command\fP and positional command arguments are mutually exclusive.
+.SH ENVIRONMENT
+.TP
+.B LDS_TERMINAL_DIAG
+Set to 1 to enable runtime diagnostics output.
+.TP
+.B GSK_RENDERER
+Set automatically from \fB--renderer\fP when a non-default renderer is chosen.
+.SH SEE ALSO
+.BR gtk4 (1),
+.BR vte (1)

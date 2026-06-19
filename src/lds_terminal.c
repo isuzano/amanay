@@ -633,7 +633,10 @@ static gboolean lds_terminal_on_window_key_press(GtkEventControllerKey *controll
 	(void)controller;
 	(void)keycode;
 
-	if (terminal && terminal->tab_overview && ADW_IS_TAB_OVERVIEW(terminal->tab_overview) &&
+	if (!terminal || terminal->destroyed)
+		return FALSE;
+
+	if (terminal->tab_overview && ADW_IS_TAB_OVERVIEW(terminal->tab_overview) &&
 		adw_tab_overview_get_open(ADW_TAB_OVERVIEW(terminal->tab_overview)) &&
 		lds_terminal_overview_should_consume_enter(keyval, TRUE)) {
 		GtkWidget *focus = NULL;
@@ -661,7 +664,8 @@ static gboolean lds_terminal_on_overview_key_press(GtkEventControllerKey *contro
 	(void)controller;
 	(void)keycode;
 
-	if (!terminal || !terminal->tab_overview || !ADW_IS_TAB_OVERVIEW(terminal->tab_overview))
+	if (!terminal || terminal->destroyed || !terminal->tab_overview ||
+		!ADW_IS_TAB_OVERVIEW(terminal->tab_overview))
 		return FALSE;
 
 	if (!adw_tab_overview_get_open(ADW_TAB_OVERVIEW(terminal->tab_overview)))

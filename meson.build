@@ -51,6 +51,7 @@ add_project_arguments('-DGETTEXT_PACKAGE="lds-terminal"', language: 'c')
 
 subdir('po')
 subdir('data')
+subdir('man')
 subdir('src')
 if get_option('tests')
   subdir('tests')
