@@ -95,26 +95,31 @@ static void test_context_model_contains_link_actions(void) {
 static void test_cancel_search_debounce_removes_pending_source(void) {
 	LdsTerminal terminal = {0};
 	guint source_id = g_timeout_add_seconds(30, test_timeout_cb, NULL);
+	terminal.search_state = lds_terminal_search_state_new();
+	g_assert_nonnull(terminal.search_state);
 
-	terminal.search_debounce_id = source_id;
+	terminal.search_state->search_debounce_id = source_id;
 	g_assert_nonnull(g_main_context_find_source_by_id(NULL, source_id));
 
 	lds_terminal_cancel_search_debounce(&terminal);
 
-	g_assert_cmpuint(terminal.search_debounce_id, ==, 0u);
+	g_assert_cmpuint(terminal.search_state->search_debounce_id, ==, 0u);
 	g_assert_null(g_main_context_find_source_by_id(NULL, source_id));
 
 	/* Idempotent call should be safe. */
 	lds_terminal_cancel_search_debounce(&terminal);
+	g_clear_pointer(&terminal.search_state, lds_terminal_search_state_free);
 }
 
 static void test_close_selected_tab_cancels_search_debounce(void) {
 	LdsTerminal terminal = {0};
 	LdsTerminalTerm *term = g_new0(LdsTerminalTerm, 1);
 	guint source_id = g_timeout_add_seconds(30, test_timeout_cb, NULL);
+	terminal.search_state = lds_terminal_search_state_new();
+	g_assert_nonnull(terminal.search_state);
 
 	terminal.terms = g_ptr_array_new();
-	terminal.search_debounce_id = source_id;
+	terminal.search_state->search_debounce_id = source_id;
 	term->parent = &terminal;
 	term->pid = -1;
 	term->page = NULL;
@@ -124,29 +129,33 @@ static void test_close_selected_tab_cancels_search_debounce(void) {
 
 	lds_terminal_tabs_close(&terminal, term, LDS_TERMINAL_TABS_CLOSE_BY_SHUTDOWN);
 
-	g_assert_cmpuint(terminal.search_debounce_id, ==, 0u);
+	g_assert_cmpuint(terminal.search_state->search_debounce_id, ==, 0u);
 	g_assert_null(g_main_context_find_source_by_id(NULL, source_id));
 	g_assert_cmpuint(terminal.terms->len, ==, 0u);
 
 	g_ptr_array_free(terminal.terms, TRUE);
+	g_clear_pointer(&terminal.search_state, lds_terminal_search_state_free);
 }
 
 static void test_schedule_search_debounce_deduplicates_same_request(void) {
 	LdsTerminal terminal = {0};
+	terminal.search_state = lds_terminal_search_state_new();
+	g_assert_nonnull(terminal.search_state);
 
 	lds_terminal_search_schedule_debounce(&terminal, test_timeout_cb);
-	guint first_id = terminal.search_debounce_id;
+	guint first_id = terminal.search_state->search_debounce_id;
 
 	g_assert_cmpuint(first_id, !=, 0u);
 	g_assert_nonnull(g_main_context_find_source_by_id(NULL, first_id));
 
 	lds_terminal_search_schedule_debounce(&terminal, test_timeout_cb);
-	g_assert_cmpuint(terminal.search_debounce_id, ==, first_id);
+	g_assert_cmpuint(terminal.search_state->search_debounce_id, ==, first_id);
 	g_assert_nonnull(g_main_context_find_source_by_id(NULL, first_id));
 
 	lds_terminal_cancel_search_debounce(&terminal);
-	g_assert_cmpuint(terminal.search_debounce_id, ==, 0u);
+	g_assert_cmpuint(terminal.search_state->search_debounce_id, ==, 0u);
 	g_assert_null(g_main_context_find_source_by_id(NULL, first_id));
+	g_clear_pointer(&terminal.search_state, lds_terminal_search_state_free);
 }
 
 static void test_remove_term_clears_cached_selected_state(void) {
@@ -162,7 +171,9 @@ static void test_remove_term_clears_cached_selected_state(void) {
 	terminal.menu_edit_state_term = term;
 	terminal.menu_edit_state_bits = 0xffu;
 	terminal.menu_edit_state_valid = TRUE;
-	terminal.search_haystack_term = term;
+	terminal.search_state = lds_terminal_search_state_new();
+	g_assert_nonnull(terminal.search_state);
+	terminal.search_state->search_haystack_term = term;
 
 	lds_terminal_remove_term(&terminal, term);
 
@@ -170,10 +181,11 @@ static void test_remove_term_clears_cached_selected_state(void) {
 	g_assert_null(terminal.menu_edit_state_term);
 	g_assert_cmpuint(terminal.menu_edit_state_bits, ==, 0u);
 	g_assert_false(terminal.menu_edit_state_valid);
-	g_assert_null(terminal.search_haystack_term);
+	g_assert_null(terminal.search_state->search_haystack_term);
 	g_assert_cmpuint(terminal.terms->len, ==, 0u);
 
 	g_ptr_array_free(terminal.terms, TRUE);
+	g_clear_pointer(&terminal.search_state, lds_terminal_search_state_free);
 }
 
 static GSimpleActionGroup *test_context_actions_new(void) {

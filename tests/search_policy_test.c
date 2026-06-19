@@ -91,38 +91,42 @@ static void test_search_count_with_regex_honors_cancellation(void) {
 static void test_search_duplicate_running_active_request(void) {
 	LdsTerminal terminal = {0};
 	LdsTerminalTerm term = {0};
+	terminal.search_state = lds_terminal_search_state_new();
+	g_assert_nonnull(terminal.search_state);
 
-	terminal.search_count_running = TRUE;
-	terminal.search_haystack_generation = 7u;
-	terminal.search_count_active_term = &term;
-	terminal.search_count_active_query = g_strdup("needle");
-	terminal.search_count_active_opt_flags = 3u;
-	terminal.search_count_active_generation = 7u;
+	terminal.search_state->search_count_running = TRUE;
+	terminal.search_state->search_haystack_generation = 7u;
+	terminal.search_state->search_count_active_term = &term;
+	terminal.search_state->search_count_active_query = g_strdup("needle");
+	terminal.search_state->search_count_active_opt_flags = 3u;
+	terminal.search_state->search_count_active_generation = 7u;
 
 	g_assert_true(lds_terminal_search_count_request_is_duplicate(&terminal, &term, "needle", 3u));
 	g_assert_false(lds_terminal_search_count_request_is_duplicate(&terminal, &term, "needle", 4u));
 	g_assert_false(lds_terminal_search_count_request_is_duplicate(&terminal, &term, "other", 3u));
 
-	g_free(terminal.search_count_active_query);
+	g_clear_pointer(&terminal.search_state, lds_terminal_search_state_free);
 }
 
 static void test_search_duplicate_running_pending_request(void) {
 	LdsTerminal terminal = {0};
 	LdsTerminalTerm term = {0};
+	terminal.search_state = lds_terminal_search_state_new();
+	g_assert_nonnull(terminal.search_state);
 
-	terminal.search_count_running = TRUE;
-	terminal.search_count_reschedule = TRUE;
-	terminal.search_haystack_generation = 11u;
-	terminal.search_pending_term = &term;
-	terminal.search_pending_query = g_strdup("foo");
-	terminal.search_pending_opt_flags = 9u;
-	terminal.search_pending_generation = 11u;
+	terminal.search_state->search_count_running = TRUE;
+	terminal.search_state->search_count_reschedule = TRUE;
+	terminal.search_state->search_haystack_generation = 11u;
+	terminal.search_state->search_pending_term = &term;
+	terminal.search_state->search_pending_query = g_strdup("foo");
+	terminal.search_state->search_pending_opt_flags = 9u;
+	terminal.search_state->search_pending_generation = 11u;
 
 	g_assert_true(lds_terminal_search_count_request_is_duplicate(&terminal, &term, "foo", 9u));
-	terminal.search_pending_generation = 10u;
+	terminal.search_state->search_pending_generation = 10u;
 	g_assert_false(lds_terminal_search_count_request_is_duplicate(&terminal, &term, "foo", 9u));
 
-	g_free(terminal.search_pending_query);
+	g_clear_pointer(&terminal.search_state, lds_terminal_search_state_free);
 }
 
 int main(int argc, char **argv) {
