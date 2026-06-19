@@ -38,28 +38,6 @@ static inline void lds_terminal_vte_terminal_spawn_async(
 							 cancellable, callback, user_data);
 }
 
-static inline void lds_terminal_vte_terminal_fork_command_full(
-	VteTerminal *terminal, VtePtyFlags pty_flags, const char *working_directory, char **argv,
-	char **envv, GSpawnFlags spawn_flags, GSpawnChildSetupFunc child_setup,
-	gpointer child_setup_data, GPid *child_pid, GError **error) {
-#if !VTE_CHECK_VERSION(0, 38, 0)
-	vte_terminal_fork_command_full(terminal, pty_flags, working_directory, argv, envv, spawn_flags,
-								   child_setup, child_setup_data, child_pid, error);
-#else
-	(void)terminal;
-	(void)pty_flags;
-	(void)working_directory;
-	(void)argv;
-	(void)envv;
-	(void)spawn_flags;
-	(void)child_setup;
-	(void)child_setup_data;
-	(void)child_pid;
-	if (error)
-		*error = NULL;
-#endif
-}
-
 static inline void lds_terminal_vte_terminal_feed(VteTerminal *terminal, const char *data,
 												  gssize length) {
 	vte_terminal_feed(terminal, data, length);
@@ -124,23 +102,12 @@ static inline gboolean lds_terminal_vte_terminal_search_find_previous(VteTermina
 
 static inline gchar *lds_terminal_vte_terminal_match_check_at(VteTerminal *terminal, double x,
 															  double y, int *tag) {
-#if _VTE_GTK == 4
 	return vte_terminal_check_match_at(terminal, x, y, tag);
-#else
-	return vte_terminal_match_check(terminal, (glong)x, (glong)y, tag);
-#endif
 }
 
 static inline gchar *lds_terminal_vte_terminal_hyperlink_check_at(VteTerminal *terminal, double x,
 																  double y) {
-#if _VTE_GTK == 4
 	return vte_terminal_check_hyperlink_at(terminal, x, y);
-#else
-	(void)terminal;
-	(void)x;
-	(void)y;
-	return NULL;
-#endif
 }
 
 static inline int lds_terminal_vte_terminal_match_add_regex(VteTerminal *terminal, VteRegex *regex,

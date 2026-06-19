@@ -47,7 +47,6 @@ gboolean lds_terminal_vte_spawn_child(LdsTerminalTerm *term, GtkWidget *vte, gbo
 		exec_owned = TRUE;
 	}
 
-#if VTE_CHECK_VERSION(0, 38, 0)
 	if (secondary)
 		term->secondary_pid = -1;
 	else
@@ -56,25 +55,6 @@ gboolean lds_terminal_vte_spawn_child(LdsTerminalTerm *term, GtkWidget *vte, gbo
 	lds_terminal_vte_terminal_spawn_async(
 		VTE_TERMINAL(vte), VTE_PTY_NO_LASTLOG | VTE_PTY_NO_UTMP | VTE_PTY_NO_WTMP, cwd, exec,
 		spawn_env, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, -1, NULL, callback, user_data);
-#else
-	g_autoptr(GError) error = NULL;
-	GPid pid = -1;
-	lds_terminal_vte_terminal_fork_command_full(
-		VTE_TERMINAL(vte), VTE_PTY_NO_LASTLOG | VTE_PTY_NO_UTMP | VTE_PTY_NO_WTMP, cwd, exec,
-		spawn_env, G_SPAWN_SEARCH_PATH, NULL, NULL, &pid, &error);
-	if (error) {
-		g_warning("Failed to spawn terminal child: %s", error->message);
-		if (exec_owned)
-			g_strfreev(exec);
-		if (env_owned)
-			g_strfreev(spawn_env);
-		return FALSE;
-	}
-	if (secondary)
-		term->secondary_pid = pid;
-	else
-		term->pid = pid;
-#endif
 
 	if (exec_owned)
 		g_strfreev(exec);
